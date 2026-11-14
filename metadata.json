@@ -1,0 +1,6 @@
+{
+  "name": "NokurAI - Smart Spaced Repetition Study & Flashcards",
+  "description": "AI-powered study platform that automatically transforms lecture notes and PDFs into step-by-step topic walkthroughs and spaced repetition flashcards with gamification, end-to-end encryption, and offline sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

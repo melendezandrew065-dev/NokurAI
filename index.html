@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      (function() {
+        // Prevent and ignore harmless Vite HMR socket disconnect logs in Cloud Run iframe
+        var origConsoleError = console.error;
+        console.error = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var str = args.map(function(a) {
+            return (a && a.message) ? a.message : (a && a.stack) ? a.stack : String(a);
+          }).join(' ');
+          if (
+            str.indexOf('WebSocket') !== -1 ||
+            str.indexOf('closed without opened') !== -1 ||
+            str.indexOf('vite-hmr') !== -1 ||
+            str.indexOf('vite-ping') !== -1
+          ) {
+            return;
+          }
+          return origConsoleError.apply(console, args);
+        };
+
+        // Gracefully resolve Vite HMR WebSocket connection attempts without failing
+        var NativeWS = window.WebSocket;
+        if (NativeWS) {
+          function SafeWebSocket(url, protocols) {
+            var urlStr = String(url || '');
+            var protoStr = String(protocols || '');
+            if (
+              protoStr.indexOf('vite') !== -1 ||
+              urlStr.indexOf('vite') !== -1 ||
+              urlStr.indexOf('@vite') !== -1 ||
+              urlStr.indexOf('token=') !== -1 ||
+              protocols === 'vite-hmr' ||
+              protocols === 'vite-ping'
+            ) {
+              var dummy = new EventTarget();
+              dummy.binaryType = 'blob';
+              dummy.readyState = 1; // OPEN
+              dummy.bufferedAmount = 0;
+              dummy.extensions = '';
+              dummy.protocol = protocols || 'vite-hmr';
+              dummy.url = urlStr;
+              dummy.onopen = null;
+              dummy.onmessage = null;
+              dummy.onerror = null;
+              dummy.onclose = null;
+              dummy.send = function() {};
+              dummy.close = function() {
+                dummy.readyState = 3;
+                var evt = new Event('close');
+                evt.wasClean = true;
+                evt.code = 1000;
+                if (typeof dummy.onclose === 'function') dummy.onclose(evt);
+                dummy.dispatchEvent(evt);
+              };
+              dummy.addEventListener = function(type, listener, options) {
+                EventTarget.prototype.addEventListener.call(dummy, type, listener, options);
+                if (type === 'open') {
+                  setTimeout(function() {
+                    var openEvt = new Event('open');
+                    if (typeof dummy.onopen === 'function') dummy.onopen(openEvt);
+                    dummy.dispatchEvent(openEvt);
+                  }, 0);
+                }
+              };
+              setTimeout(function() {
+                var openEvt = new Event('open');
+                if (typeof dummy.onopen === 'function') dummy.onopen(openEvt);
+                dummy.dispatchEvent(openEvt);
+              }, 0);
+              return dummy;
+            }
+            return new NativeWS(url, protocols);
+          }
+          SafeWebSocket.prototype = NativeWS.prototype;
+          SafeWebSocket.CONNECTING = 0;
+          SafeWebSocket.OPEN = 1;
+          SafeWebSocket.CLOSING = 2;
+          SafeWebSocket.CLOSED = 3;
+          window.WebSocket = SafeWebSocket;
+        }
+
+        window.addEventListener('error', function(event) {
+          if (event && (
+            (event.message && (event.message.indexOf('WebSocket') !== -1 || event.message.indexOf('closed without opened') !== -1)) ||
+            (event.error && event.error.message && (event.error.message.indexOf('WebSocket') !== -1 || event.error.message.indexOf('closed without opened') !== -1))
+          )) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event && event.reason) {
+            var msg = event.reason.message || String(event.reason);
+            if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('closed without opened') !== -1) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NokurAI - Smart Spaced Repetition Study & Flashcards</title>
+    <meta name="description" content="AI-powered study platform that automatically transforms lecture notes, PDFs, slides, and audio into step-by-step topic walkthroughs and spaced repetition flashcards with gamification, end-to-end encryption, and offline sync." />
+    
+    <!-- Google AdSense Account Verification & Auto Ads Script -->
+    <meta name="google-adsense-account" content="ca-pub-6591682562691116" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" />
+
+    <!-- Open Graph & Social Cards -->
+    <meta property="og:title" content="NokurAI - Smart Spaced Repetition Study & Flashcards" />
+    <meta property="og:description" content="AI-powered study platform that automatically transforms lecture notes and PDFs into step-by-step topic walkthroughs and spaced repetition flashcards with gamification, end-to-end encryption, and offline sync." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NokurAI" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NokurAI - Smart Spaced Repetition Study & Flashcards" />
+    <meta name="twitter:description" content="Transform lecture notes and PDFs into spaced repetition flashcards and step-by-step learning modules." />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <!-- Google AdSense Official Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6591682562691116" crossorigin="anonymous"></script>
+
+    <!-- Schema.org Educational WebApplication Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NokurAI",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "All",
+      "description": "AI-powered study platform that automatically transforms lecture notes and PDFs into step-by-step topic walkthroughs and spaced repetition flashcards.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "Andrew Melendez",
+        "email": "melendezandrew065@gmail.com"
+      }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  </head>
+  <body>
+    <div id="root">
+      <!-- Initial semantic educational content (replaced immediately when React mounts) -->
+      <main style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 960px; margin: 40px auto; padding: 24px; line-height: 1.65; color: #1e293b;">
+        <header style="margin-bottom: 32px; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px;">
+          <h1 style="font-size: 2rem; font-weight: 800; color: #0f172a; margin: 0 0 8px;">NokurAI — Smart Spaced Repetition Study &amp; Flashcards</h1>
+          <p style="color: #475569; margin: 0;">AI-powered educational study platform that transforms lecture notes, PDFs, slides, and audio into step-by-step topic walkthroughs and SM-2 spaced repetition flashcards.</p>
+        </header>
+        <section style="margin-bottom: 28px;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">How NokurAI Helps Students Master Any Subject</h2>
+          <p>Active recall and spaced repetition are among the most effective evidence-based techniques in cognitive psychology. NokurAI pairs lecture synthesis with the SuperMemo SM-2 algorithm so you review each concept right before memory decay occurs.</p>
+          <ul>
+            <li><strong>Universal Lecture Upload:</strong> Convert PDF lecture slides, handwritten note photos, Word documents, PowerPoint decks, and audio recordings into structured flashcards.</li>
+            <li><strong>Step-by-Step Topic Walkthroughs:</strong> Learn foundational principles first, verify comprehension at checkpoints, and advance to mastery.</li>
+            <li><strong>Adaptive SM-2 Scheduling &amp; Quizzes:</strong> Track daily study streaks, recall ease factors, and quiz performance across subjects including Cognitive Science, Biology, Physics, and Distributed Systems.</li>
+            <li><strong>Offline Vault &amp; Privacy:</strong> Personal study decks remain cached locally for offline review.</li>
+          </ul>
+        </section>
+        <footer style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 0.9rem; color: #475569;">
+          <nav aria-label="Legal and site information">
+            <a href="/privacy">Privacy Policy</a> ·
+            <a href="/terms">Terms of Service</a> ·
+            <a href="/about">About Us</a> ·
+            <a href="/contact">Contact</a> ·
+            <a href="/cookie-policy">Cookie Policy</a> ·
+            <a href="/ads.txt">ads.txt</a>
+          </nav>
+          <p style="margin-top: 10px;">Publisher Contact: <a href="mailto:melendezandrew065@gmail.com">melendezandrew065@gmail.com</a></p>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
